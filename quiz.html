@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MindCare Quiz</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+
+background:
+radial-gradient(circle at top left,#00c6ff,#0b1f52 55%);
+
+overflow:hidden;
+color:white;
+
+}
+
+.quiz-box{
+
+width:600px;
+
+background:rgba(255,255,255,0.08);
+
+backdrop-filter:blur(20px);
+
+padding:40px;
+
+border-radius:30px;
+
+border:1px solid rgba(255,255,255,0.15);
+
+box-shadow:
+0 0 40px rgba(0,255,255,0.35);
+
+animation:fade 0.5s ease;
+
+}
+
+.logo{
+
+font-size:32px;
+font-weight:700;
+margin-bottom:10px;
+
+}
+
+.sub{
+
+opacity:0.8;
+margin-bottom:25px;
+
+}
+
+.progress{
+
+height:10px;
+background:rgba(255,255,255,0.1);
+border-radius:20px;
+overflow:hidden;
+margin-bottom:30px;
+
+}
+
+.progress-bar{
+
+height:100%;
+width:0%;
+
+background:linear-gradient(90deg,#00e5ff,#00ff99);
+
+transition:0.4s;
+
+}
+
+.question{
+
+font-size:28px;
+font-weight:700;
+margin-bottom:25px;
+line-height:1.4;
+
+}
+
+.option{
+
+background:rgba(255,255,255,0.08);
+
+padding:18px;
+
+margin:15px 0;
+
+border-radius:16px;
+
+cursor:pointer;
+
+font-size:18px;
+
+transition:0.3s;
+
+border:1px solid rgba(255,255,255,0.1);
+
+}
+
+.option:hover{
+
+transform:translateY(-3px) scale(1.02);
+
+background:#00d9ff;
+
+color:black;
+
+font-weight:bold;
+
+box-shadow:0 0 20px rgba(0,255,255,0.5);
+
+}
+
+.footer{
+
+margin-top:25px;
+text-align:center;
+opacity:0.7;
+font-size:14px;
+
+}
+
+.result{
+
+text-align:center;
+padding:20px;
+
+}
+
+.result h1{
+
+font-size:42px;
+margin-bottom:20px;
+
+}
+
+.result p{
+
+font-size:20px;
+line-height:1.7;
+
+}
+
+.restart{
+
+margin-top:30px;
+
+padding:15px 25px;
+
+border:none;
+
+border-radius:15px;
+
+background:#00e5ff;
+
+font-size:18px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+.restart:hover{
+
+transform:scale(1.05);
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="quiz-box">
+
+<div class="logo">
+🧠 MindCare Quiz
+</div>
+
+<div class="sub">
+Mental Wellness Self Assessment
+</div>
+
+<div class="progress">
+
+<div class="progress-bar" id="bar"></div>
+
+</div>
+
+<div class="question" id="question">
+
+Question
+
+</div>
+
+<div id="options"></div>
+
+<div class="footer">
+
+Choose the option that best describes you 💙
+
+</div>
+
+</div>
+
+<script>
+
+const quizData = [
+
+{
+question:"How are you feeling today?",
+options:["Happy","Sad","Anxious","Relaxed"]
+},
+
+{
+question:"Do you sleep properly?",
+options:["Yes","No","Sometimes","Rarely"]
+},
+
+{
+question:"How often do you feel stressed?",
+options:["Daily","Weekly","Rarely","Never"]
+},
+
+{
+question:"Do you take study breaks regularly?",
+options:["Always","Sometimes","Rarely","Never"]
+},
+
+{
+question:"What improves your mood?",
+options:["Music","Sleep","Friends","Games"]
+},
+
+{
+question:"Do you feel anxious before exams?",
+options:["Always","Sometimes","Rarely","Never"]
+},
+
+{
+question:"How often do you exercise?",
+options:["Daily","Weekly","Rarely","Never"]
+},
+
+{
+question:"Do you enjoy social interaction?",
+options:["Yes","No","Sometimes","Rarely"]
+},
+
+{
+question:"How do you manage stress?",
+options:["Music","Meditation","Sleep","Games"]
+},
+
+{
+question:"Do you feel mentally tired often?",
+options:["Daily","Weekly","Rarely","Never"]
+},
+
+{
+question:"How many hours do you sleep daily?",
+options:["4-5","6-7","8+","Less than 4"]
+},
+
+{
+question:"Do you practice meditation or yoga?",
+options:["Daily","Weekly","Rarely","Never"]
+},
+
+{
+question:"How confident do you feel today?",
+options:["Very Confident","Normal","Low","Very Low"]
+},
+
+{
+question:"Do you share your feelings with others?",
+options:["Always","Sometimes","Rarely","Never"]
+},
+
+{
+question:"How often do you feel happy?",
+options:["Daily","Weekly","Rarely","Never"]
+}
+
+];
+
+let current = 0;
+
+function loadQuestion(){
+
+document.getElementById("question").innerHTML =
+
+(current + 1) + ". " + quizData[current].question;
+
+let optionHTML = "";
+
+quizData[current].options.forEach(opt => {
+
+optionHTML +=
+
+`<div class="option"
+onclick="nextQuestion()">
+
+${opt}
+
+</div>`;
+
+});
+
+document.getElementById("options").innerHTML =
+optionHTML;
+
+document.getElementById("bar").style.width =
+
+((current + 1) / quizData.length) * 100 + "%";
+
+}
+
+function nextQuestion(){
+
+current++;
+
+if(current >= quizData.length){
+
+document.querySelector(".quiz-box").innerHTML =
+
+`
+
+<div class="result">
+
+<h1>🎉 Quiz Completed</h1>
+
+<p>
+
+Thank you for completing the MindCare Mental Wellness Quiz.
+
+Your responses help understand emotional wellness and stress patterns.
+
+Stay positive, take care of yourself, and prioritize mental health 💙
+
+</p>
+
+<button class="restart"
+onclick="location.reload()">
+
+Restart Quiz
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+loadQuestion();
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html> 

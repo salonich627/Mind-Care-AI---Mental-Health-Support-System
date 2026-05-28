@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindCare – Login</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">💚</div>
+      <div><p class="logo-name">MindCare AI</p><p class="logo-sub">Your mental wellness companion</p></div>
+    </div>
+    <div class="aff">
+      <p class="aff-main">You deserve to feel better today</p>
+      <p class="aff-sub">One step at a time 🌱</p>
+    </div>
+    <p class="sec-lbl">Welcome back</p>
+    <div class="inp-grp">
+      <input class="inp" id="l-email" type="email" placeholder="Email address"/>
+      <input class="inp" id="l-pass" type="password" placeholder="Password"/>
+    </div>
+    <button class="btn" onclick="doLogin()">Login</button>
+    <button class="btn-out" onclick="window.location='signup.html'">Create Account</button>
+    <p class="foot">In crisis? Call iCall India: <strong>9152987821</strong></p>
+  </div>
+  <script>
+    if (localStorage.getItem('mc_user')) window.location = 'home.html';
+    function doLogin() {
+      const e = document.getElementById('l-email').value.trim();
+      const p = document.getElementById('l-pass').value;
+      if (!e || !p) { alert('Please fill all fields.'); return; }
+      const u = JSON.parse(localStorage.getItem('mc_user') || '{}');
+      localStorage.setItem('mc_user', JSON.stringify({...u, email: e}));
+      window.location = 'home.html';
+    }
+  </script>
+</body>
+</html>

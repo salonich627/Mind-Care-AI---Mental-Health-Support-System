@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindCare – Chat</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body{padding:0;align-items:stretch}
+    .chat-wrap{width:100%;max-width:430px;margin:auto;display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+  </style>
+</head>
+<body>
+<div class="breath-overlay" id="bOver">
+  <div class="breath-box">
+    <p class="b-label">Guided Breathing</p>
+    <div class="b-circle" id="bCirc">
+      <div class="b-ring" id="bRing"></div>
+      <div class="b-glow" id="bGlw"></div>
+      <span class="b-num"   id="bN">4</span>
+      <span class="b-phase" id="bPh">Breathe In</span>
+    </div>
+    <p class="b-cycle" id="bCy">Round 1 of 4</p>
+    <button class="b-skip" id="bSk" onclick="closeBreath()">Skip</button>
+  </div>
+</div>
+
+<div class="chat-wrap">
+  <div class="chat-card">
+    <div class="chat-hdr">
+      <button class="back-btn" onclick="window.location='home.html'">←</button>
+      <div class="chat-av">💚</div>
+      <div>
+        <p class="chat-hdr-name">MindCare AI</p>
+        <p class="chat-hdr-sub" id="hSub">● Online</p>
+      </div>
+      <button class="breathe-btn" onclick="openBreath()">🌬️ Breathe</button>
+    </div>
+    <div class="chips"    id="chips"></div>
+    <div class="messages" id="msgs"></div>
+    <div class="sug-bar"  id="sugBar" style="display:none"></div>
+    <div class="input-row">
+      <input class="chat-inp" id="inp" placeholder="Share what's on your mind..." onkeydown="if(event.key==='Enter')send()"/>
+      <button class="send-btn" id="sBtn" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const mood  = localStorage.getItem('mc_mood')       || '';
+  const moodE = localStorage.getItem('mc_mood_emoji') || '';
+
+  const CHIPS = {
+    Sad:    ["I feel really low today 😔","I've been crying a lot","I feel empty inside"],
+    Happy:  ["Something amazing happened! 🌟","I want to share good news","Life feels good today"],
+    Angry:  ["I'm really frustrated 😤","Someone hurt me","I can't control my anger"],
+    Anxious:["My mind won't stop racing 😰","I'm scared about my future","Exam/work stress is killing me"],
+    Tired:  ["I'm completely exhausted 😴","I haven't slept properly","I feel burnt out"],
+    Numb:   ["I feel nothing at all 😶","I feel disconnected","Nothing excites me anymore"],
+  };
+  const SUGS = {
+    Sad:    ["How to feel better?","Suggest a playlist 🎵","Give me a distraction","I need motivation"],
+    Happy:  ["How to keep this energy?","Suggest something fun 🎮","Share a positive affirmation"],
+    Angry:  ["How to calm down fast?","Suggest stress relief","Why do I get so angry?"],
+    Anxious:["Help me with anxiety","Exam stress tips","How to stop overthinking?"],
+    Tired:  ["Why am I always tired?","Best ways to recharge 🔋","Sleep tips for tonight"],
+    Numb:   ["Why do I feel numb?","How to feel emotions again?","Mood-lifting activities"],
+  };
+
+  if (mood) document.getElementById('hSub').textContent = `● Online · ${moodE} ${mood}`;
+
+  const chipsEl = document.getElementById('chips');
+  (CHIPS[mood]||CHIPS.Sad).forEach(c => {
+    const b = document.createElement('button');
+    b.className='chip'; b.textContent=c;
+    b.onclick=()=>{chipsEl.style.display='none'; send(c);};
+    chipsEl.appendChild(b);
+  });
+
+  let history=[], replyCount=0;
+
+  addMsg('ai', mood
+    ? `Hey, I can see you're feeling ${mood.toLowerCase()} ${moodE} — and that's okay. I'm here with you, no judgment. What's been going on? 💙`
+    : "Hey! I'm MindCare 💙 I'm here to listen. What's on your mind today?");
+
+  function addMsg(role, text) {
+    const wrap = document.getElementById('msgs');
+    const d = document.createElement('div');
+    d.className = `msg ${role==='user'?'user':'ai'}`;
+    d.innerHTML = `<div class="bubble">${text}</div>`;
+    wrap.appendChild(d);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+  function showTyping() {
+    const wrap = document.getElementById('msgs');
+    const d = document.createElement('div');
+    d.className='typing'; d.id='typing';
+    d.innerHTML='<span></span><span></span><span></span>';
+    wrap.appendChild(d); wrap.scrollTop=wrap.scrollHeight;
+  }
+  function hideTyping() { const t=document.getElementById('typing'); if(t) t.remove(); }
+
+  function showSugs() {
+    const bar = document.getElementById('sugBar');
+    bar.innerHTML='';
+    (SUGS[mood]||SUGS.Sad).forEach(s=>{
+      const b=document.createElement('button');
+      b.className='sug-btn'; b.textContent=s;
+      b.onclick=()=>send(s);
+      bar.appendChild(b);
+    });
+    bar.style.display='flex';
+  }
+
+  async function send(preset) {
+    const inp = document.getElementById('inp');
+    const text = (preset||inp.value).trim();
+    if (!text) return;
+    inp.value='';
+    chipsEl.style.display='none';
+    addMsg('user', text);
+    history.push({role:'user', content:text});
+    document.getElementById('sBtn').disabled=true;
+    showTyping();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({messages:history, mood})
+      });
+      const data  = await res.json();
+      const reply = data.reply || "I'm here for you 💙 Tell me more.";
+      hideTyping();
+      addMsg('ai', reply);
+      history.push({role:'assistant', content:reply});
+      replyCount++;
+      if (replyCount===1) showSugs();
+    } catch(e) {
+      hideTyping();
+      addMsg('ai','Connection issue 💙 Please try again.');
+      console.error(e);
+    }
+    document.getElementById('sBtn').disabled=false;
+  }
+
+  // BREATHING
+  const PH={
+    inhale:{next:'hold',  dur:4,label:'Breathe In', color:'#60A5FA',tr:'4s'},
+    hold:  {next:'exhale',dur:4,label:'Hold',       color:'#C084FC',tr:'0.5s'},
+    exhale:{next:'inhale',dur:6,label:'Breathe Out',color:'#34D399',tr:'6s'},
+  };
+  let bIv,bPh='inhale',bCnt=4,bCyc=0;
+  function openBreath(){
+    bPh='inhale';bCnt=4;bCyc=0;
+    document.getElementById('bOver').classList.add('show');
+    const sk=document.getElementById('bSk');
+    sk.textContent='Skip';sk.className='b-skip';sk.onclick=closeBreath;
+    document.getElementById('bCy').style.color='';
+    updateB(); bIv=setInterval(tickB,1000);
+  }
+  function closeBreath(){clearInterval(bIv);document.getElementById('bOver').classList.remove('show');}
+  function tickB(){
+    bCnt--;
+    if(bCnt<=0){
+      bPh=PH[bPh].next;
+      if(bPh==='inhale'){
+        bCyc++;
+        if(bCyc>=4){
+          clearInterval(bIv);
+          document.getElementById('bCy').textContent='Well done! 🌿';
+          document.getElementById('bCy').style.color='#34D399';
+          const sk=document.getElementById('bSk');
+          sk.textContent='Continue ✓';sk.className='b-done';sk.onclick=closeBreath;
+          return;
+        }
+      }
+      bCnt=PH[bPh].dur;
+    }
+    updateB();
+  }
+  function updateB(){
+    const p=PH[bPh];
+    const scale=bPh==='inhale'?1.18:bPh==='exhale'?0.82:1;
+    document.getElementById('bCirc').style.transform =`scale(${scale})`;
+    document.getElementById('bCirc').style.transition=`transform ${p.tr} ease-in-out`;
+    document.getElementById('bRing').style.borderColor=p.color;
+    document.getElementById('bGlw').style.background  =p.color;
+    document.getElementById('bN').style.color         =p.color;
+    document.getElementById('bN').textContent         =bCnt;
+    document.getElementById('bPh').textContent        =p.label;
+    document.getElementById('bCy').textContent        =`Round ${bCyc+1} of 4`;
+  }
+</script>
+</body>
+</html>

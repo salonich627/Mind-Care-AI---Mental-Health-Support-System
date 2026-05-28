@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MindCare Home</title>
+
+<link rel="stylesheet" href="style.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="card" style="max-width:430px">
+
+<div class="nav">
+<p class="nav-g">
+Hi, <span id="uname">Friend</span> 👋
+</p>
+
+<button class="logbtn" onclick="logout()">
+Logout
+</button>
+</div>
+
+<div class="logo" style="margin-bottom:18px">
+
+<div class="logo-icon">💚</div>
+
+<div>
+<p class="logo-name">MindCare</p>
+<p class="logo-sub">
+Your mental wellness companion
+</p>
+</div>
+
+</div>
+
+<div class="aff">
+
+<p class="aff-main" id="aff-m">
+Loading...
+</p>
+
+<p class="aff-sub" id="aff-s"></p>
+
+</div>
+
+<p class="sec-lbl">
+HOW ARE YOU FEELING?
+</p>
+
+<div class="mood-grid" id="mgrid"></div>
+
+<button class="abtn p"
+onclick="window.location='chat.html'">
+
+<div class="aico"
+style="background:rgba(255,255,255,.1)">
+💬
+</div>
+
+<div class="abody">
+<p class="atitle">Chat with AI</p>
+<p class="asub">
+Empathetic • Always available
+</p>
+</div>
+
+<span class="aarr">→</span>
+
+</button>
+
+<button class="abtn s"
+onclick="window.location='manual.html'">
+
+<div class="aico"
+style="background:rgba(255,255,255,.05)">
+📖
+</div>
+
+<div class="abody">
+<p class="atitle">Self-Help Manual</p>
+<p class="asub">
+Techniques & crisis resources
+</p>
+</div>
+
+<span class="aarr">→</span>
+
+</button>
+
+<button class="analytics-btn"
+onclick="toggleGraph()">
+📊 Analytics
+</button>
+
+<p class="foot">
+Not a replacement for professional care.
+<br>
+Crisis? Call iCall:
+<strong>9152987821</strong>
+</p>
+
+</div>
+
+<!-- GRAPH POPUP -->
+
+<div class="graph-popup" id="graphPopup">
+
+<div class="graph-card">
+
+<button class="close-graph"
+onclick="toggleGraph()">
+✕
+</button>
+
+<h3>📊 Mood History</h3>
+
+<canvas id="moodChart"></canvas>
+
+</div>
+
+</div>
+
+<script>
+
+const MOODS = [
+
+{
+emoji:"😔",
+label:"Sad",
+color:"#60A5FA",
+glow:"#60A5FA22",
+ring:"#3B82F6"
+},
+
+{
+emoji:"😊",
+label:"Happy",
+color:"#34D399",
+glow:"#34D39922",
+ring:"#10B981"
+},
+
+{
+emoji:"😡",
+label:"Angry",
+color:"#F87171",
+glow:"#F8717122",
+ring:"#EF4444"
+},
+
+{
+emoji:"😰",
+label:"Anxious",
+color:"#FBBF24",
+glow:"#FBBF2422",
+ring:"#F59E0B"
+},
+
+{
+emoji:"😴",
+label:"Tired",
+color:"#C084FC",
+glow:"#C084FC22",
+ring:"#A855F7"
+},
+
+{
+emoji:"😶",
+label:"Numb",
+color:"#94A3B8",
+glow:"#94A3B822",
+ring:"#64748B"
+}
+
+];
+
+const AFFS = [
+
+{
+main:"You are stronger than you think",
+sub:"Every storm runs out of rain 🌦️"
+},
+
+{
+main:"It's okay to not be okay",
+sub:"Rest is part of the journey 🌱"
+},
+
+{
+main:"You deserve to be here",
+sub:"Your presence matters 🤍"
+},
+
+{
+main:"Small steps still move you forward",
+sub:"Progress is progress 🏆"
+},
+
+{
+main:"This feeling is temporary",
+sub:"You've survived 100% of hard days 💫"
+}
+
+];
+
+const user =
+JSON.parse(localStorage.getItem("mc_user") || "{}");
+
+if(!user.email){
+window.location = "login.html";
+}
+
+if(user.name){
+document.getElementById("uname").textContent =
+user.name.split(" ")[0];
+}
+
+const a =
+AFFS[Math.floor(Math.random()*AFFS.length)];
+
+document.getElementById("aff-m").textContent =
+a.main;
+
+document.getElementById("aff-s").textContent =
+a.sub;
+
+const grid =
+document.getElementById("mgrid");
+
+const sel =
+localStorage.getItem("mc_mood") || "";
+
+MOODS.forEach(m => {
+
+const b =
+document.createElement("button");
+
+b.className =
+"mood-btn" +
+(sel===m.label ? " active" : "");
+
+b.innerHTML =
+`<span class="mood-em">${m.emoji}</span>${m.label}`;
+
+if(sel===m.label){
+
+b.style.background = m.glow;
+b.style.borderColor = m.ring;
+b.style.color = m.color;
+b.style.boxShadow =
+`0 8px 24px ${m.glow}`;
+
+}
+
+b.onclick = () => {
+
+const history =
+JSON.parse(
+localStorage.getItem("moodHistory")
+) || [];
+
+history.push(m.label);
+
+localStorage.setItem(
+"moodHistory",
+JSON.stringify(history)
+);
+
+document.querySelectorAll(".mood-btn")
+.forEach(x => {
+
+x.classList.remove("active");
+x.style.cssText = "";
+
+});
+
+b.classList.add("active");
+
+b.style.background = m.glow;
+b.style.borderColor = m.ring;
+b.style.color = m.color;
+
+b.style.boxShadow =
+`0 8px 24px ${m.glow}`;
+
+b.style.transform =
+"translateY(-4px) scale(1.05)";
+
+localStorage.setItem(
+"mc_mood",
+m.label
+);
+
+};
+
+grid.appendChild(b);
+
+});
+
+function logout(){
+
+localStorage.clear();
+
+window.location =
+"login.html";
+
+}
+
+function toggleGraph(){
+
+const popup =
+document.getElementById("graphPopup");
+
+popup.classList.toggle("show");
+
+}
+
+const moods =
+JSON.parse(
+localStorage.getItem("moodHistory")
+) || [];
+
+const counts = {
+
+Sad:0,
+Happy:0,
+Angry:0,
+Anxious:0,
+Tired:0,
+Numb:0
+
+};
+
+moods.forEach(m => {
+
+if(counts[m] !== undefined){
+
+counts[m]++;
+
+}
+
+});
+
+new Chart(
+document.getElementById("moodChart"),
+{
+
+type:"bar",
+
+data:{
+
+labels:Object.keys(counts),
+
+datasets:[{
+
+label:"Mood Count",
+
+data:Object.values(counts),
+
+backgroundColor:[
+
+"#60a5fa",
+"#34d399",
+"#f87171",
+"#fbbf24",
+"#c084fc",
+"#94a3b8"
+
+],
+
+borderRadius:10
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+plugins:{
+legend:{
+labels:{
+color:"white"
+}
+}
+},
+
+scales:{
+
+x:{
+ticks:{
+color:"white"
+}
+},
+
+y:{
+ticks:{
+color:"white"
+}
+}
+
+}
+
+}
+
+});
+
+</script>
+
+</body>
+</html>

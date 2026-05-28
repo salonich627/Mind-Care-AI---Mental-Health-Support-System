@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindCare – Manual</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>body{align-items:flex-start}</style>
+</head>
+<body>
+  <div class="manual-wrap">
+    <div class="manual-hdr">
+      <button class="back-btn" onclick="window.location='home.html'">←</button>
+      <div class="manual-av">📖</div>
+      <div>
+        <p style="font-size:15px;font-weight:600;color:#e2e8f0">Wellness Guide</p>
+        <p style="font-size:11px;color:#4d7fa8;margin-top:1px">Activities, tips & support</p>
+      </div>
+    </div>
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="showCat('techniques',this)">🧘 Techniques</button>
+      <button class="cat-tab" onclick="showCat('games',this)">🎮 Games</button>
+      <button class="cat-tab" onclick="showCat('music',this)">🎵 Music</button>
+      <button class="cat-tab" onclick="showCat('activities',this)">✨ Activities</button>
+      <button class="cat-tab" onclick="showCat('crisis',this)">🆘 Crisis</button>
+    </div>
+    <div class="tips-section active" id="cat-techniques"></div>
+    <div class="tips-section" id="cat-games"></div>
+    <div class="tips-section" id="cat-music"></div>
+    <div class="tips-section" id="cat-activities"></div>
+    <div class="tips-section" id="cat-crisis"></div>
+    <p style="margin-top:10px;font-size:11px;color:#253447;text-align:center;line-height:1.8">Seeking help is a sign of strength 💙</p>
+  </div>
+  <script>
+
+const DATA = {
+
+techniques:[
+
+{
+icon:"🫁",
+color:"#60A5FA",
+title:"Box Breathing",
+tag:"For Stress",
+
+desc:`Follow a calm breathing cycle.<br><br>
+
+<a href="https://www.calm.com/breathe" target="_blank" class="guide-btn">
+🌿 Start Breathing
+</a>
+
+<a href="https://www.youtube.com/results?search_query=breathing+exercise" target="_blank" class="guide-btn">
+🎧 Breathing Music
+</a>`
+},
+
+{
+icon:"🧠",
+color:"#34D399",
+title:"Grounding Technique",
+tag:"For Anxiety",
+
+desc:`Ground yourself using your senses.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=grounding+technique" target="_blank" class="guide-btn">
+🎧 Learn Grounding
+</a>
+
+<a href="https://www.youtube.com/results?search_query=anxiety+relief" target="_blank" class="guide-btn">
+🌿 Anxiety Relief
+</a>`
+},
+
+{
+icon:"📝",
+color:"#818CF8",
+title:"Journaling",
+tag:"For Sadness",
+
+desc:`Write your feelings freely.<br><br>
+
+<a href="https://750words.com/" target="_blank" class="guide-btn">
+✍️ Start Journaling
+</a>`
+},
+
+{
+icon:"🌙",
+color:"#FBBF24",
+title:"Sleep Relaxation",
+tag:"Better Sleep",
+
+desc:`Relax your mind before sleeping.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=sleep+meditation" target="_blank" class="guide-btn">
+😴 Sleep Meditation
+</a>
+
+<a href="https://www.youtube.com/results?search_query=rain+sounds" target="_blank" class="guide-btn">
+🌧️ Rain Sounds
+</a>`
+}
+
+],
+
+games:[
+
+{
+icon:"🎲",
+color:"#60A5FA",
+title:"Simple Ludo",
+tag:"Relax & Fun",
+
+desc:`Play relaxing Ludo and refresh your mood.<br><br>
+
+<a href="https://ludoking.com/" target="_blank" class="guide-btn">
+🎮 Play Ludo
+</a>`
+},
+
+{
+icon:"🎨",
+color:"#F472B6",
+title:"Color Match",
+tag:"Relax Focus",
+
+desc:`Calming color matching activity.<br><br>
+
+<a href="https://www.crazygames.com/game/coloruid" target="_blank" class="guide-btn">
+🌈 Start Color Match
+</a>`
+},
+{
+icon:"⏳",
+color:"#34D399",
+title:"Focus Timer",
+tag:"Productivity",
+
+desc:`Stay calm and focused with a timer.<br><br>
+
+<a href="https://pomofocus.io/" target="_blank" class="guide-btn">
+⏱️ Start Focus Timer
+</a>`
+},
+
+{
+icon:"💭",
+color:"#A78BFA",
+title:"Mood Quiz",
+tag:"Self Awareness",
+
+desc:'Understand your feelings better.<br><br>' +
+
+'<button class="guide-btn" onclick="window.location.href=\'quiz.html\'">🧠 Start Mood Quiz</button>'
+}
+
+],
+
+music:[
+
+{
+icon:"🎵",
+color:"#60A5FA",
+title:"Relax Music",
+tag:"Calm Mood",
+desc:`Soft relaxing Bollywood songs.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=soft+bollywood+love+songs"
+target="_blank"
+class="guide-btn">
+
+🎶 Soft Bollywood
+
+</a>`
+}, 
+{
+icon:"😴",
+color:"#818CF8",
+title:"Sleep Music",
+tag:"Deep Relax",
+
+desc:`Soft peaceful sleep sounds.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=sleep+music" target="_blank" class="guide-btn">
+🌙 Sleep Sounds
+</a>
+
+<a href="https://www.youtube.com/results?search_query=ocean+sounds" target="_blank" class="guide-btn">
+🌊 Ocean Sounds
+</a>`
+},
+
+{
+icon:"⚡",
+color:"#FBBF24",
+title:"Motivation Songs",
+tag:"Positive Energy",
+
+desc:`Boost your confidence and mood.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=motivational+songs" target="_blank" class="guide-btn">
+🔥 Motivation Songs
+</a>`
+}
+
+],
+
+activities:[
+
+{
+icon:"😊",
+color:"#34D399",
+title:"Happy Mood Activities",
+tag:"Feel Good",
+
+desc:`Boost happiness with fun activities.<br><br>
+
+<a href="https://quickdraw.withgoogle.com/" target="_blank" class="guide-btn">
+🎨 Quick Draw
+</a>
+
+<a href="https://www.youtube.com/results?search_query=dance+workout" target="_blank" class="guide-btn">
+💃 Dance Fun
+</a>`
+},
+
+{
+icon:"😔",
+color:"#60A5FA",
+title:"Sad Mood Support",
+tag:"Comfort",
+
+desc:`Gentle support activities.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=comfort+videos" target="_blank" class="guide-btn">
+🌙 Comfort Videos
+</a>
+
+<a href="https://www.calm.com/breathe" target="_blank" class="guide-btn">
+🌿 Calm Breathing
+</a>`
+},
+
+{
+icon:"😤",
+color:"#F87171",
+title:"Stress Relief",
+tag:"Relax Mind",
+
+desc:`Relax your mind and body.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=stress+relief+exercise" target="_blank" class="guide-btn">
+🧘 Relax Exercise
+</a>
+
+<a href="https://www.youtube.com/results?search_query=rain+sounds" target="_blank" class="guide-btn">
+🌧️ Rain Sounds
+</a>`
+},
+
+{
+icon:"😴",
+color:"#818CF8",
+title:"Sleep Activities",
+tag:"Better Sleep",
+
+desc:`Relax before bedtime.<br><br>
+
+<a href="https://www.youtube.com/results?search_query=sleep+meditation" target="_blank" class="guide-btn">
+🌙 Sleep Meditation
+</a>
+
+<a href="https://www.youtube.com/results?search_query=night+music" target="_blank" class="guide-btn">
+🎵 Night Music
+</a>`
+}
+
+],
+
+crisis:[
+
+{
+icon:"🆘",
+color:"#EF4444",
+title:"Emergency Help",
+tag:"Immediate Support",
+
+desc:`If you're emotionally overwhelmed, seek support immediately.<br><br>
+
+<a href="https://findahelpline.com/" target="_blank" class="guide-btn">
+📞 Helpline
+</a>
+
+<a href="https://www.7cups.com/" target="_blank" class="guide-btn">
+💬 Talk To Someone
+</a>`
+}
+
+]
+
+};
+
+Object.entries(DATA).forEach(([cat,items])=>{
+
+const sec=document.getElementById(`cat-${cat}`);
+
+items.forEach((t)=>{
+
+const d=document.createElement('div');
+
+d.className='tip-card';
+
+d.innerHTML=`
+
+<div style="display:flex;gap:14px">
+
+<div class="tip-icon"
+style="background:${t.color}18;color:${t.color}">
+${t.icon}
+</div>
+
+<div style="flex:1">
+
+<p class="tip-name">${t.title}</p>
+
+<p class="tip-desc">${t.desc}</p>
+
+<span class="tip-tag">${t.tag}</span>
+
+</div>
+
+</div>
+`;
+
+sec.appendChild(d);
+
+});
+
+});
+
+function showCat(cat,el){
+
+document.querySelectorAll('.tips-section')
+.forEach(s=>s.classList.remove('active'));
+
+document.querySelectorAll('.cat-tab')
+.forEach(t=>t.classList.remove('active'));
+
+document.getElementById(`cat-${cat}`)
+.classList.add('active');
+
+el.classList.add('active');
+
+}
+</script>

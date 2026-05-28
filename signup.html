@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindCare – Sign Up</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">💚</div>
+      <div><p class="logo-name">MindCare</p><p class="logo-sub">Your mental wellness companion</p></div>
+    </div>
+    <p class="sec-lbl">Create your account</p>
+    <div class="inp-grp">
+      <input id="s-name"  type="text"     placeholder="Full name"/>
+      <input class="inp" id="s-email" type="email"    placeholder="Email address"/>
+      <input class="inp" id="s-pass"  type="password" placeholder="Password"/>
+      <input class="inp" id="s-conf"  type="password" placeholder="Confirm password"/>
+    </div>
+    <button class="btn" onclick="doSignup()">Create Account</button>
+    <button class="btn-out" onclick="window.location='login.html'">Already have an account</button>
+  </div>
+  <script>
+    function doSignup() {
+      const n = document.getElementById('s-name').value.trim();
+      const e = document.getElementById('s-email').value.trim();
+      const p = document.getElementById('s-pass').value;
+      const c = document.getElementById('s-conf').value;
+      if (!n||!e||!p) { alert('Please fill all fields.'); return; }
+      if (p !== c) { alert('Passwords do not match.'); return; }
+      localStorage.setItem('mc_user', JSON.stringify({name:n, email:e}));
+      window.location = 'home.html';
+    }
+  </script>
+</body>
+</html>
